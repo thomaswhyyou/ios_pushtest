@@ -2,8 +2,24 @@
 <html>
 <head>
     <title></title>
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 </head>
+
 <body>
-    Yolo!
+    <p>Send a push notification to Thomas' shitty tiny old iPhone 4S:</p>
+    <form action="/" method="POST" rows="1">
+        <textarea id="message" name="message"
+                  placeholder="Say something." maxlength="140"
+                  style="width: 250px; height: 60px;"></textarea>
+        <br/>
+        <input type="submit" value="Send">
+        <span id="status">140</span>
+    </form>
 </body>
+
+<script type="text/javascript">
+    $("#message").keyup(function() {
+        $("#status").text(140 - this.textLength);
+    });
+</script>
 </html>
