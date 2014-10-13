@@ -1,6 +1,6 @@
 import os
 from apns import APNs, Payload
-from flask import Flask, render_template, redirect, request
+from flask import Flask, render_template, request
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 apns = APNs(use_sandbox=True,
@@ -11,17 +11,15 @@ DEBUG = False
 app = Flask(__name__)
 app.config.from_object(__name__)
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def index_get():
-    return render_template("index.html")
+    if request.method == "POST":
+        message = request.form.get("message")
+        token_hex = "fef5ddd709797cb79acfaabf5d8cd22148d5c947cbacf24c6be251ce7dc27c7e"
+        payload = Payload(alert=message, sound="default", badge=1)
+        apns.gateway_server.send_notification(token_hex, payload)
 
-@app.route("/", methods=["POST"])
-def index_post():
-    message = request.form.get("message")
-    token_hex = "fef5ddd709797cb79acfaabf5d8cd22148d5c947cbacf24c6be251ce7dc27c7e"
-    payload = Payload(alert=message, sound="default", badge=1)
-    apns.gateway_server.send_notification(token_hex, payload)
-    return redirect("/", code=302)
+    return render_template("index.html")
 
 if __name__ == "__main__":
     app.config.update(
