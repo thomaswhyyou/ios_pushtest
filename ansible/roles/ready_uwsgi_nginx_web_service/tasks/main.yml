@@ -1,0 +1,60 @@
+---
+########### uwsgi
+- name: install uwsgi into venv
+  pip: name=uwsgi virtualenv={{ venv_dir }} state=present
+
+
+
+########### setting up supervisor
+- name: install supervisor
+  pip: name=supervisor state=present extra_args="--pre"
+
+- name: create supervisord init script
+  copy: src=supervisord_init.sh dest=/etc/init.d/supervisord force=yes
+        mode=755 # mode set to make it executable
+
+- name: create config file for supervisor
+  copy: src=supervisord_itself.conf dest=/etc/supervisord.conf force=yes
+  register: super_itself_conf
+  notify:
+    - restart supervisor
+
+- name: create supervisor "include" folder
+  file: dest=/etc/supervisor state=directory
+
+- name: create config file for supervisor program => {{ app_name }}
+  template: src=supervisord_uwsgi.conf dest=/etc/supervisor/{{ app_name }}.conf
+  register: super_uwsgi_conf
+  notify:
+    - restart supervisor
+
+- name: start supervisord service (and w/ system startup)
+  service: name=supervisord state=started # enabled=yes
+
+- name: restart app
+  supervisorctl: name={{ app_name }} state=restarted
+  when: super_itself_conf.changed == false and super_uwsgi_conf.changed == false
+
+
+
+########### setting up nginx
+- name: install nginx
+  apt: name=nginx state=present
+
+- name: remove default nginx placeholder
+  file: path=/etc/nginx/sites-enabled/default state=absent
+
+- name: create config file for nginx
+  template: src=nginx_itself.conf dest=/etc/nginx/nginx.conf
+  notify:
+    - restart nginx
+
+- name: create config file for {{ app_name }} in /sites-available
+  template: src=nginx_site.conf dest=/etc/nginx/sites-available/{{ app_name }}.conf
+  notify:
+    - restart nginx
+
+- name: create a link to config file for nginx site in /sites-enabled
+  file: src=/etc/nginx/sites-available/{{ app_name }}.conf
+        dest=/etc/nginx/sites-enabled/{{ app_name }}.conf
+        state=link

@@ -1,0 +1,39 @@
+---
+- include_vars: private_vars.yml
+
+- name: create application group
+  group: name={{ app_group }} system=yes
+         state=present
+
+- name: create application user
+  user: name={{ app_user }} system=yes
+        group={{ app_group }}
+        shell=/bin/bash
+        state=present
+
+- name: create application home directory (owned by app user)
+  file: path={{ app_home_dir }}
+        owner={{ app_user }}
+        group={{ app_group }}
+        state=directory
+
+- name: create log dir inside application home dir
+  file: path={{ app_home_dir }}/log
+        owner={{ app_user }}
+        group={{ app_group }}
+        state=directory
+
+- name: create run dir inside application home dir
+  file: path={{ app_home_dir }}/run
+        owner={{ app_user }}
+        group={{ app_group }}
+        state=directory
+
+- name: install git
+  apt: name=git state=present
+
+- name: clone repo to application directory
+  git: dest={{ app_src_dir }} repo={{ git_repo_url }} version={{ git_repo_version }}
+       accept_hostkey=yes
+  sudo_user: "{{ app_user }}"
+

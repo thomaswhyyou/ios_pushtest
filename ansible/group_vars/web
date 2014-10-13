@@ -1,0 +1,26 @@
+---
+########### Update below variables accordingly
+app_name: pushtest
+app_domain: doesntmatter
+git_repo_url: https://thomaswhyyou:{{github_pw}}@github.com/thomaswhyyou/ios_pushtest.git
+
+# web_framework:
+wsgi_file: app.py
+wsgi_callable: app
+###########
+
+app_home_dir: /srv/{{ app_name }}
+app_src_dir: /srv/{{ app_name }}/src
+app_static_dir: /srv/{{ app_name }}/src/static
+app_media_dir:
+
+app_user: appuser
+app_group: appgroup
+
+git_remote_name: origin
+git_repo_version: master
+
+venv_dir: "{{ app_home_dir }}"
+venv_python: "{{ venv_dir }}/bin/python"
+
+nginx_access_log_on: false

@@ -1,0 +1,22 @@
+---
+- name: install virtualenv
+  pip: name=virtualenv state=present
+
+- name: check if setup.py file exists in app_src_dir
+  stat: path={{ app_src_dir }}/setup.py
+  register: setup_file
+
+- name: if exists, "run pip install -e ."
+  pip: extra_args="-e ." chdir={{ app_src_dir }}
+       virtualenv={{ venv_dir }}
+  when: setup_file.stat.exists == true
+
+- name: if not, check if requirements.txt file exists in app_src_dir
+  stat: path={{ app_src_dir }}/requirements.txt
+  register: req_file
+  when: setup_file.stat.exists == false
+
+- name: if req_file exists, run pip install
+  pip: requirements={{ app_src_dir }}/requirements.txt
+       virtualenv={{ venv_dir }}
+  when: setup_file.stat.exists == false and req_file.stat.exists == true

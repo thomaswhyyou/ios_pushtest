@@ -1,0 +1,10 @@
+---
+# remote_user: defined in inventory
+
+- hosts: web
+  sudo: yes
+
+  roles:
+    - setup_ubuntu_for_python
+    - deploy_app_code_from_git
+    - refresh_app_dependencies_python

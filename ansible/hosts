@@ -1,0 +1,4 @@
+box01 ansible_ssh_host=107.170.90.148 ansible_ssh_user=root
+
+[web]
+box01
