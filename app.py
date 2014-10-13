@@ -1,9 +1,11 @@
+import os
 from apns import APNs, Payload
 from flask import Flask, render_template, redirect, request
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 apns = APNs(use_sandbox=True,
-            cert_file="pems/PushTestCert.pem",
-            key_file="pems/PushTestKey.pem")
+            cert_file=os.path.join(BASE_DIR, "pems", "PushTestCert.pem"),
+            key_file=os.path.join(BASE_DIR, "pems", "PushTestKey.pem"))
 
 DEBUG = False
 app = Flask(__name__)
